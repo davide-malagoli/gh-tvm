@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.graphhopper</groupId>
+    <artifactId>graphhopper-parent</artifactId>
+    <version>0.3-SNAPSHOT</version>
+  </parent>
+  <artifactId>graphhopper-teavm</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.graphhopper</groupId>
+      <artifactId>graphhopper</artifactId>
+      <version>0.3-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.teavm</groupId>
+        <artifactId>teavm-maven-plugin</artifactId>
+        <version>0.2-SNAPSHOT</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-classlib</artifactId>
+            <version>0.2-SNAPSHOT</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>generate-javascript</id>
+            <goals>
+              <goal>build-javascript</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <minifying>true</minifying>
+              <mainClass>com.graphhopper.teavm.Main</mainClass>
+              <mainPageIncluded>true</mainPageIncluded>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

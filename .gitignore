@@ -28,3 +28,6 @@ core/TODO*.txt
 srtmprovider/
 core/docs/
 .*#
+.project
+.settings
+.classpath
