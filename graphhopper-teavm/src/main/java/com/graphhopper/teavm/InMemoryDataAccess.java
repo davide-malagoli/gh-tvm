@@ -58,7 +58,7 @@ class InMemoryDataAccess implements DataAccess {
     public DataAccess create( long bytes )
     {
         if (segments.length > 0)
-            throw new IllegalThreadStateException("already created");
+            throw new IllegalStateException("already created");
 
         // initialize transient values
         setSegmentSize(segmentSizeInBytes);
