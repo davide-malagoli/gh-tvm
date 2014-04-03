@@ -11,10 +11,9 @@ import com.graphhopper.storage.GraphHopperStorage;
 public class Main {
     public static void main(String[] args) {
         InMemoryDirectory directory = new InMemoryDirectory();
-        GraphHopperStorage graph = new GraphHopperStorage(directory, new EncodingManager(EncodingManager.BIKE), false);
+        EncodingManager encodingManager = new EncodingManager(new BikeFlagEncoder());
+        GraphHopperStorage graph = new GraphHopperStorage(directory, encodingManager, false);
         graph.loadExisting();
-
-        EncodingManager encodingManager = graph.getEncodingManager();
         FlagEncoder encoder = encodingManager.getSingle();
 
         Weighting weighting = new FastestWeighting(encoder);

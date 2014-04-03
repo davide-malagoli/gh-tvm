@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -183,7 +183,6 @@ public class EncodingManager
         return resultEncoders;
     }
 
-    private static final String ERR = "Encoders are requesting more than %s bits of %s flags. ";
     private static final String WAY_ERR = "Decrease the number of vehicles or increase the flags to take long.";
 
     private void registerEncoder( AbstractFlagEncoder encoder )
@@ -191,19 +190,19 @@ public class EncodingManager
         int encoderCount = edgeEncoders.size();
         int usedBits = encoder.defineNodeBits(encoderCount, edgeEncoderNextBit);
         if (usedBits > bytesForFlags)
-            throw new IllegalArgumentException(String.format(ERR, bytesForFlags, "node"));
+            throw new IllegalArgumentException(err(bytesForFlags, "node"));
         encoder.setNodeBitMask(usedBits - nextNodeBit, nextNodeBit);
         nextNodeBit = usedBits;
 
         usedBits = encoder.defineWayBits(encoderCount, nextWayBit);
         if (usedBits > bytesForFlags)
-            throw new IllegalArgumentException(String.format(ERR, bytesForFlags, "way") + WAY_ERR);
+            throw new IllegalArgumentException(err(bytesForFlags, "way") + WAY_ERR);
         encoder.setWayBitMask(usedBits - nextWayBit, nextWayBit);
         nextWayBit = usedBits;
 
         usedBits = encoder.defineRelationBits(encoderCount, nextRelBit);
         if (usedBits > bytesForFlags)
-            throw new IllegalArgumentException(String.format(ERR, bytesForFlags, "relation"));
+            throw new IllegalArgumentException(err(bytesForFlags, "relation"));
         encoder.setRelBitMask(usedBits - nextRelBit, nextRelBit);
         nextRelBit = usedBits;
 
@@ -212,11 +211,15 @@ public class EncodingManager
         // turn flag bits are independent from edge encoder bits
         usedBits = encoder.defineTurnBits(encoderCount, nextTurnBit, determineRequiredBits(maxTurnCost));
         if (usedBits > maxTurnFlagsBits)
-            throw new IllegalArgumentException(String.format(ERR, bytesForFlags, "turn"));
+            throw new IllegalArgumentException(err(bytesForFlags, "turn"));
         nextTurnBit = usedBits;
 
         //everything okay, add encoder
         edgeEncoders.add(encoder);
+    }
+
+    private static String err(int bits, String flags) {
+        return "Encoders are requesting more than " + bits + " bits of " + flags + " flags.";
     }
 
     /**

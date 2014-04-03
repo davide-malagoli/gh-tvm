@@ -1,10 +1,10 @@
 /*
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
@@ -215,10 +215,10 @@ public class GraphHopperStorage implements GraphStorage
                     + distance + ", maybe overflow issue? integer: " + integ);
 
         // Due to rounding errors e.g. when getting the distance from another DataAccess object
-        // the following exception is not a good idea: 
+        // the following exception is not a good idea:
         // Allow integ to be 0 only if distance is 0
         // if (integ == 0 && distance > 0)
-        //    throw new IllegalStateException("Distance wasn't 0 but converted integer was: " + 
+        //    throw new IllegalStateException("Distance wasn't 0 but converted integer was: " +
         //            distance + ", integer: " + integ);
         return integ;
     }
@@ -1115,7 +1115,7 @@ public class GraphHopperStorage implements GraphStorage
         if (delNodes <= 0)
             return;
 
-        // Deletes only nodes. 
+        // Deletes only nodes.
         // It reduces the fragmentation of the node space but introduces new unused edges.
         inPlaceNodeRemove(delNodes);
 
@@ -1169,7 +1169,7 @@ public class GraphHopperStorage implements GraphStorage
      */
     private void inPlaceNodeRemove( int removeNodeCount )
     {
-        // Prepare edge-update of nodes which are connected to deleted nodes        
+        // Prepare edge-update of nodes which are connected to deleted nodes
         int toMoveNode = getNodes();
         int itemsToMove = 0;
 
@@ -1179,7 +1179,7 @@ public class GraphHopperStorage implements GraphStorage
         removedNodes.copyTo(toRemoveSet);
 
         EdgeExplorer delExplorer = createEdgeExplorer(EdgeFilter.ALL_EDGES);
-        // create map of old node ids pointing to new ids        
+        // create map of old node ids pointing to new ids
         for (int removeNode = removedNodes.next(0);
                 removeNode >= 0;
                 removeNode = removedNodes.next(removeNode + 1))
@@ -1275,7 +1275,7 @@ public class GraphHopperStorage implements GraphStorage
             if (!toMoveSet.contains(nodeA) && !toMoveSet.contains(nodeB))
                 continue;
 
-            // now overwrite exiting edge with new node ids 
+            // now overwrite exiting edge with new node ids
             // also flags and links could have changed due to different node order
             int updatedA = oldToNewMap.get(nodeA);
             if (updatedA < 0)
@@ -1377,7 +1377,8 @@ public class GraphHopperStorage implements GraphStorage
             } else
                 throw new IllegalStateException("cannot load properties. corrupt file or directory? " + dir);
 
-            if (encodingManager == null)
+            // TODO: This uses reflection indirectly. Can we avoid it?
+            /*if (encodingManager == null)
             {
                 if (acceptStr.isEmpty())
                     throw new IllegalStateException("No EncodingManager was configured. And no one was found in the graph: "
@@ -1391,7 +1392,7 @@ public class GraphHopperStorage implements GraphStorage
             {
                 throw new IllegalStateException("Encoding does not match:\nGraphhopper config: " + encodingManager.toDetailsString()
                         + "\nGraph: " + acceptStr + ", dir:" + dir.getLocation());
-            }
+            }*/
 
             String dim = properties.get("graph.dimension");
             if (!dim.equalsIgnoreCase("" + nodeAccess.getDimension()))

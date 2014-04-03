@@ -1,88 +1,61 @@
-/*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
- *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
- *  compliance with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-package com.graphhopper.storage;
+package com.graphhopper.teavm;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import org.slf4j.LoggerFactory;
+import com.graphhopper.storage.DAType;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.util.BitUtil;
 
 /**
- * This is an in-memory byte-based data structure with the possibility to be stored on flush().
- * Thread safe.
- * <p/>
- * @author Peter Karich
+ *
+ * @author Alexey Andreev
  */
-public class RAMDataAccess extends AbstractDataAccess
-{
-
+class InMemoryDataAccess implements DataAccess {
+    private InMemoryDirectory directory;
+    protected static final int SEGMENT_SIZE_MIN = 1 << 7;
+    private static final int SEGMENT_SIZE_DEFAULT = 1 << 20;
     private byte[][] segments = new byte[0][];
-    private boolean closed = false;
-    private boolean store;
+    protected int header[] = new int[(HEADER_OFFSET - 20) / 4];
+    protected static final int HEADER_OFFSET = 20 * 4 + 20;
+    protected int segmentSizeInBytes = SEGMENT_SIZE_DEFAULT;
+    protected transient int segmentSizePower;
+    protected transient int indexDivisor;
+    protected final BitUtil bitUtil;
+    private String name;
 
-    public RAMDataAccess( String name, String location, boolean store, ByteOrder order )
-    {
-        super(name, location, order);
-        this.store = store;
-    }
-
-    /**
-     * @param store true if in-memory data should be saved when calling flush
-     */
-    public RAMDataAccess store( boolean store )
-    {
-        this.store = store;
-        return this;
+    public InMemoryDataAccess(InMemoryDirectory directory, String name, ByteOrder order) {
+        this.directory = directory;
+        this.name = name;
+        bitUtil = BitUtil.get(order);
     }
 
     @Override
-    public boolean isStoring()
-    {
-        return store;
+    public DataAccess copyTo(DataAccess da) {
+        copyHeader(da);
+        da.incCapacity(getCapacity());
+        long cap = getCapacity();
+        // currently get/setBytes does not support copying more bytes then segmentSize
+        int segSize = Math.min(da.getSegmentSize(), getSegmentSize());
+        byte[] bytes = new byte[segSize];
+        for (long bytePos = 0; bytePos < cap; bytePos += segSize) {
+            getBytes(bytePos, bytes, segSize);
+            da.setBytes(bytePos, bytes, segSize);
+        }
+        return da;
     }
 
-    @Override
-    public DataAccess copyTo( DataAccess da )
+    protected void copyHeader( DataAccess da )
     {
-        if (da instanceof RAMDataAccess)
+        for (int h = 0; h < header.length * 4; h += 4)
         {
-            copyHeader(da);
-            RAMDataAccess rda = (RAMDataAccess) da;
-            // TODO PERFORMANCE we could reuse rda segments!
-            rda.segments = new byte[segments.length][];
-            for (int i = 0; i < segments.length; i++)
-            {
-                byte[] area = segments[i];
-                rda.segments[i] = Arrays.copyOf(area, area.length);
-            }
-            rda.setSegmentSize(segmentSizeInBytes);
-            // leave id, store and close unchanged
-            return da;
-        } else
-        {
-            return super.copyTo(da);
+            da.setHeader(h, getHeader(h));
         }
     }
 
+
     @Override
-    public RAMDataAccess create( long bytes )
+    public DataAccess create( long bytes )
     {
         if (segments.length > 0)
             throw new IllegalThreadStateException("already created");
@@ -108,103 +81,19 @@ public class RAMDataAccess extends AbstractDataAccess
         if (todoBytes % segmentSizeInBytes != 0)
             segmentsToCreate++;
 
-        try
+        byte[][] newSegs = Arrays.copyOf(segments, segments.length + segmentsToCreate);
+        for (int i = segments.length; i < newSegs.length; i++)
         {
-            byte[][] newSegs = Arrays.copyOf(segments, segments.length + segmentsToCreate);
-            for (int i = segments.length; i < newSegs.length; i++)
-            {
-                newSegs[i] = new byte[1 << segmentSizePower];
-            }
-            segments = newSegs;
-        } catch (OutOfMemoryError err)
-        {
-            throw new OutOfMemoryError(err.getMessage() + " - problem when allocating new memory. Old capacity: "
-                    + cap + ", new bytes:" + todoBytes + ", segmentSizeIntsPower:" + segmentSizePower
-                    + ", new segments:" + segmentsToCreate + ", existing:" + segments.length);
+            newSegs[i] = new byte[1 << segmentSizePower];
         }
+        segments = newSegs;
         return true;
-    }
-
-    @Override
-    public boolean loadExisting()
-    {
-        if (segments.length > 0)
-            throw new IllegalStateException("already initialized");
-
-        if (!store || closed)
-            return false;
-
-        File file = new File(getFullName());
-        if (!file.exists() || file.length() == 0)
-            return false;
-
-        try
-        {
-            RandomAccessFile raFile = new RandomAccessFile(getFullName(), "r");
-            try
-            {
-                long byteCount = readHeader(raFile) - HEADER_OFFSET;
-                if (byteCount < 0)
-                    return false;
-
-                raFile.seek(HEADER_OFFSET);
-                // raFile.readInt() <- too slow
-                int segmentCount = (int) (byteCount / segmentSizeInBytes);
-                if (byteCount % segmentSizeInBytes != 0)
-                    segmentCount++;
-
-                segments = new byte[segmentCount][];
-                for (int s = 0; s < segmentCount; s++)
-                {
-                    byte[] bytes = new byte[segmentSizeInBytes];
-                    int read = raFile.read(bytes);
-                    if (read <= 0)
-                        throw new IllegalStateException("segment " + s + " is empty? " + toString());
-
-                    segments[s] = bytes;
-                }
-                return true;
-            } finally
-            {
-                raFile.close();
-            }
-        } catch (IOException ex)
-        {
-            throw new RuntimeException("Problem while loading " + getFullName(), ex);
-        }
     }
 
     @Override
     public void flush()
     {
-        if (closed)
-            throw new IllegalStateException("already closed");
-
-        if (!store)
-            return;
-
-        try
-        {
-            RandomAccessFile raFile = new RandomAccessFile(getFullName(), "rw");
-            try
-            {
-                long len = getCapacity();
-                writeHeader(raFile, len, segmentSizeInBytes);
-                raFile.seek(HEADER_OFFSET);
-                // raFile.writeInt() <- too slow, so copy into byte array
-                for (int s = 0; s < segments.length; s++)
-                {
-                    byte area[] = segments[s];
-                    raFile.write(area);
-                }
-            } finally
-            {
-                raFile.close();
-            }
-        } catch (Exception ex)
-        {
-            throw new RuntimeException("Couldn't store bytes to " + toString(), ex);
-        }
+        // Do nothing, as we always keep everything in memory
     }
 
     @Override
@@ -298,9 +187,7 @@ public class RAMDataAccess extends AbstractDataAccess
     @Override
     public void close()
     {
-        super.close();
         segments = new byte[0][];
-        closed = true;
     }
 
     @Override
@@ -339,24 +226,58 @@ public class RAMDataAccess extends AbstractDataAccess
     @Override
     public void rename( String newName )
     {
-        if (!checkBeforeRename(newName))
-        {
-            return;
+        if (directory.dataAccessMap.containsKey(newName)) {
+            throw new IllegalArgumentException("File " + newName + " already exists");
         }
-        if (store)
-        {
-            super.rename(newName);
-        }
-
-        // in every case set the name
+        directory.dataAccessMap.remove(name);
         name = newName;
+        directory.dataAccessMap.put(newName, this);
     }
 
     @Override
     public DAType getType()
     {
-        if (isStoring())
-            return DAType.RAM_STORE;
         return DAType.RAM;
+    }
+
+    @Override
+    public boolean loadExisting() {
+        // TODO: implement loading from image, obtained from server
+        return true;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setHeader(int bytePos, int value) {
+        bytePos >>= 2;
+        header[bytePos] = value;
+    }
+
+    @Override
+    public int getHeader(int bytePos) {
+        bytePos >>= 2;
+        return header[bytePos];
+    }
+
+    @Override
+    public DataAccess setSegmentSize(int bytes) {
+        if (bytes > 0)
+        {
+            // segment size should be a power of 2
+            int tmp = (int) (Math.log(bytes) / Math.log(2));
+            segmentSizeInBytes = Math.max((int) Math.pow(2, tmp), SEGMENT_SIZE_MIN);
+        }
+        segmentSizePower = (int) (Math.log(segmentSizeInBytes) / Math.log(2));
+        indexDivisor = segmentSizeInBytes - 1;
+        return this;
+    }
+
+    @Override
+    public int getSegmentSize() {
+        return segmentSizeInBytes;
     }
 }

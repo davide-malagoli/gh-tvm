@@ -1,10 +1,10 @@
 /*
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
  *
- *  GraphHopper licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *  GraphHopper licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
@@ -24,13 +24,13 @@ package com.graphhopper.routing.util;
  */
 public class BikeFlagEncoder extends BikeFlagCommonEncoder
 {
-    BikeFlagEncoder()
+    public BikeFlagEncoder()
     {
         setTrackTypeSpeed("grade1", 20); // paved
         setTrackTypeSpeed("grade2", 12); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);
         setTrackTypeSpeed("grade4", 10);
-        setTrackTypeSpeed("grade5", 8); // like sand/grass     
+        setTrackTypeSpeed("grade5", 8); // like sand/grass
 
         setSurfaceSpeed("paved", 20);
         setSurfaceSpeed("asphalt", 20);
