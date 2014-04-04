@@ -26,6 +26,11 @@
       <artifactId>teavm-core</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.teavm</groupId>
+      <artifactId>teavm-jso</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -49,7 +54,7 @@
             </goals>
             <phase>process-classes</phase>
             <configuration>
-              <minifying>true</minifying>
+              <minifying>false</minifying>
               <mainClass>com.graphhopper.teavm.Main</mainClass>
               <mainPageIncluded>true</mainPageIncluded>
             </configuration>
