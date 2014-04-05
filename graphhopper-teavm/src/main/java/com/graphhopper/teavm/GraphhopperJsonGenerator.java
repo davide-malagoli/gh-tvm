@@ -32,22 +32,23 @@ public class GraphhopperJsonGenerator {
             byte[] headerBytes = new byte[80];
             for (int i = 0; i < 20; ++i) {
                 int val = dataAccess.getHeader(i * 4);
-                headerBytes[i * 4 + 0] = (byte)(val >>> 24);
-                headerBytes[i * 4 + 1] = (byte)(val >>> 16);
-                headerBytes[i * 4 + 2] = (byte)(val >>> 8);
-                headerBytes[i * 4 + 3] = (byte)val;
+                headerBytes[i * 4 + 0] = (byte)val;
+                headerBytes[i * 4 + 1] = (byte)(val >>> 8);
+                headerBytes[i * 4 + 2] = (byte)(val >>> 16);
+                headerBytes[i * 4 + 3] = (byte)(val >>> 24);
             }
             out.print("\"header\":\"" + Base64.encode(headerBytes) + "\",");
+            out.print("\"length\":" + dataAccess.getCapacity() +  ",");
             out.println("\"data\":[");
 
             for (int i = 0; i < dataAccess.getCapacity(); i += buffer.length) {
                 int sz = (int)(Math.min(i + buffer.length, dataAccess.getCapacity()) - i);
                 for (int j = 0; j < sz; j += 4) {
                     int val = dataAccess.getInt(i + j);
-                    buffer[j + 0] = (byte)(val >>> 24);
-                    buffer[j + 1] = (byte)(val >>> 16);
-                    buffer[j + 2] = (byte)(val >>> 8);
-                    buffer[j + 3] = (byte)(val >>> 0);
+                    buffer[j + 0] = (byte)(val >>> 0);
+                    buffer[j + 1] = (byte)(val >>> 8);
+                    buffer[j + 2] = (byte)(val >>> 16);
+                    buffer[j + 3] = (byte)(val >>> 24);
                 }
                 if (i > 0) {
                     out.println(",");

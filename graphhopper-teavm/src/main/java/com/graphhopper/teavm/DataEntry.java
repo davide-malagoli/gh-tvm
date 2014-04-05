@@ -20,4 +20,7 @@ public interface DataEntry extends JSObject {
 
     @JSProperty
     String getHeader();
+
+    @JSProperty
+    int getLength();
 }

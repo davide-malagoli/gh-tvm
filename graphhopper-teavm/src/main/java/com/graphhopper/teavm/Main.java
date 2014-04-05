@@ -48,17 +48,18 @@ public class Main {
             DataEntry entry = data.get(i);
             DataAccess file = directory.find(entry.getName());
             file.setSegmentSize(entry.getSegmentSize());
-            long pos = 0;
+            file.create(entry.getLength());
+            int pos = 0;
             for (int j = 0; j < entry.getData().getLength(); ++j) {
-                byte[] bytes = Base64.decode(JS.unwrapString(entry.getData().get(0)));
-                for (int k = 0; k < bytes.length; k += 4) {
-                    int val = (bytes[k]) | (bytes[k + 1] << 8) | (bytes[k + 2] << 16) | (bytes[k + 3] << 24);
-                    file.setInt(j + k, val);
-                }
+                byte[] bytes = Base64.decode(JS.unwrapString(entry.getData().get(j)));
                 file.setBytes(pos, bytes, bytes.length);
                 pos += bytes.length;
             }
-            file.setHeader(i, i);
+            byte[] header = Base64.decode(entry.getHeader());
+            for (int j = 0; j < 80; j += 4) {
+                int val = (header[j]) | (header[j + 1] << 8) | (header[j + 2] << 16) | (header[j + 3] << 24);
+                file.setHeader(j, val);
+            }
         }
     }
 }

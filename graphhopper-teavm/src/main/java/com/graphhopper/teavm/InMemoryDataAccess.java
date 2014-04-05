@@ -145,42 +145,34 @@ class InMemoryDataAccess implements DataAccess {
     @Override
     public void setBytes( long bytePos, byte[] values, int length )
     {
-        assert length <= segmentSizeInBytes : "the length has to be smaller or equal to the segment size: " + length + " vs. " + segmentSizeInBytes;
         assert segmentSizePower > 0 : "call create or loadExisting before usage!";
-        int bufferIndex = (int) (bytePos >>> segmentSizePower);
-        int index = (int) (bytePos & indexDivisor);
-        byte[] seg = segments[bufferIndex];
-        int delta = index + length - segmentSizeInBytes;
-        if (delta > 0)
-        {
-            length -= delta;
-            System.arraycopy(values, 0, seg, index, length);
-            seg = segments[bufferIndex + 1];
-            System.arraycopy(values, length, seg, 0, delta);
-        } else
-        {
-            System.arraycopy(values, 0, seg, index, length);
+        int sourceIndex = 0;
+        while (length > 0) {
+            int index = (int) (bytePos & indexDivisor);
+            int bufferIndex = (int) (bytePos >>> segmentSizePower);
+            byte[] seg = segments[bufferIndex];
+            int localLength = Math.min(length, segmentSizeInBytes - index);
+            System.arraycopy(values, sourceIndex, seg, index, localLength);
+            bytePos += localLength;
+            sourceIndex += localLength;
+            length -= localLength;
         }
     }
 
     @Override
     public void getBytes( long bytePos, byte[] values, int length )
     {
-        assert length <= segmentSizeInBytes : "the length has to be smaller or equal to the segment size: " + length + " vs. " + segmentSizeInBytes;
         assert segmentSizePower > 0 : "call create or loadExisting before usage!";
         int bufferIndex = (int) (bytePos >>> segmentSizePower);
-        int index = (int) (bytePos & indexDivisor);
-        byte[] seg = segments[bufferIndex];
-        int delta = index + length - segmentSizeInBytes;
-        if (delta > 0)
-        {
-            length -= delta;
-            System.arraycopy(seg, index, values, 0, length);
-            seg = segments[bufferIndex + 1];
-            System.arraycopy(seg, 0, values, length, delta);
-        } else
-        {
-            System.arraycopy(seg, index, values, 0, length);
+        int targetIndex = 0;
+        while (length > 0) {
+            int index = (int) (bytePos & indexDivisor);
+            byte[] seg = segments[bufferIndex];
+            int localLength = Math.min(length, segmentSizeInBytes - index);
+            System.arraycopy(seg, index, values, targetIndex, localLength);
+            bytePos += localLength;
+            targetIndex += localLength;
+            length -= localLength;
         }
     }
 
