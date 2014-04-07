@@ -8,6 +8,7 @@ import com.graphhopper.routing.util.Bike2WeightFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.GHDirectory;
+import com.graphhopper.storage.index.LocationIndexTree;
 
 /**
  *
@@ -22,6 +23,9 @@ public class GraphhopperJsonGenerator {
         gh.setEncodingManager(new EncodingManager(new Bike2WeightFlagEncoder()));
         gh.set3D(true);
         gh.importOrLoad();
+        LocationIndexTree locTree = new LocationIndexTree(gh.getGraph(), gh.getGraph().getDirectory());
+        locTree.prepareIndex();
+        locTree.flush();
         GHDirectory dir = (GHDirectory)gh.getGraph().getDirectory();
         byte[] buffer = new byte[1024];
         PrintStream out = new PrintStream(new File(args[1]));
@@ -32,7 +36,7 @@ public class GraphhopperJsonGenerator {
             byte[] headerBytes = new byte[80];
             for (int i = 0; i < 20; ++i) {
                 int val = dataAccess.getHeader(i * 4);
-                headerBytes[i * 4 + 0] = (byte)val;
+                headerBytes[i * 4 + 0] = (byte)(val & 0xFF);
                 headerBytes[i * 4 + 1] = (byte)(val >>> 8);
                 headerBytes[i * 4 + 2] = (byte)(val >>> 16);
                 headerBytes[i * 4 + 3] = (byte)(val >>> 24);
@@ -45,7 +49,7 @@ public class GraphhopperJsonGenerator {
                 int sz = (int)(Math.min(i + buffer.length, dataAccess.getCapacity()) - i);
                 for (int j = 0; j < sz; j += 4) {
                     int val = dataAccess.getInt(i + j);
-                    buffer[j + 0] = (byte)(val >>> 0);
+                    buffer[j + 0] = (byte)(val & 0xFF);
                     buffer[j + 1] = (byte)(val >>> 8);
                     buffer[j + 2] = (byte)(val >>> 16);
                     buffer[j + 3] = (byte)(val >>> 24);

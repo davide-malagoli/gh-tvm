@@ -1452,9 +1452,10 @@ public class GraphHopperStorage implements GraphStorage
     protected int loadNodesHeader()
     {
         int hash = nodes.getHeader(0);
-        if (hash != getClass().getName().hashCode())
+        // TODO: maybe should use JVM-independent hashing?
+        /*if (hash != getClass().getName().hashCode())
             throw new IllegalStateException("Cannot load the graph when using instance of "
-                    + getClass().getName() + " and location: " + dir);
+                    + getClass().getName() + " and location: " + dir);*/
 
         nodeEntryBytes = nodes.getHeader(1 * 4);
         nodeCount = nodes.getHeader(2 * 4);
