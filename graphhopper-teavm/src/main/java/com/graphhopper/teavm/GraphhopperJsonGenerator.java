@@ -24,8 +24,9 @@ public class GraphhopperJsonGenerator {
         gh.set3D(true);
         gh.importOrLoad();
         LocationIndexTree locTree = new LocationIndexTree(gh.getGraph(), gh.getGraph().getDirectory());
-        locTree.prepareIndex();
-        locTree.flush();
+        //locTree.prepareIndex();
+        //locTree.flush();
+        System.out.println(locTree.findID(55.762523, 37.408784));
         GHDirectory dir = (GHDirectory)gh.getGraph().getDirectory();
         byte[] buffer = new byte[1024];
         PrintStream out = new PrintStream(new File(args[1]));
