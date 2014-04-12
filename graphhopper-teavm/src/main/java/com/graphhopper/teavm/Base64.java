@@ -27,9 +27,9 @@ public class Base64 {
         int j = 0;
         int sz = (bytes.length / 3) * 3;
         for (int i = 0; i < sz; i += 3, j += 4) {
-            buffer = (bytes[i + 0] << 16) |
-                     (bytes[i + 1] <<  8) |
-                     (bytes[i + 2] <<  0);
+            buffer = ((bytes[i + 0] & 0xFF) << 16) |
+                     ((bytes[i + 1] & 0xFF) <<  8) |
+                     ((bytes[i + 2] & 0xFF) <<  0);
             printBuffer(chars, buffer, j);
         }
         switch (bytes.length % 3) {

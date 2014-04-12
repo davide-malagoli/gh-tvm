@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -112,7 +112,7 @@ public class LocationIndexTree implements LocationIndex
         equalNormedDelta = distCalc.calcNormalizedDist(0.1);
 
         // now calculate the necessary maxDepth d for our current bounds
-        // if we assume a minimum resolution like 0.5km for a leaf-tile                
+        // if we assume a minimum resolution like 0.5km for a leaf-tile
         // n^(depth/2) = toMeter(dLon) / minResolution
         BBox bounds = graph.getBounds();
         if (graph.getNodes() == 0 || !bounds.check())
@@ -296,7 +296,8 @@ public class LocationIndexTree implements LocationIndex
         InMemConstructionIndex inMem = getPrepareInMemIndex();
 
         // compact & store to dataAccess
-        dataAccess.create(64 * 1024);
+        // XXX: it seems that there is issue somewhere, so I temporarily commented this
+        //dataAccess.create(64 * 1024);
         int lastPointer = inMem.store(inMem.root, START_POINTER);
         flush();
         float entriesPerLeaf = (float) inMem.size / inMem.leafs;
@@ -559,7 +560,7 @@ public class LocationIndexTree implements LocationIndex
         {
             int value = dataAccess.getInt(pointer);
             if (value < 0)
-            // single data entries (less disc space)            
+            // single data entries (less disc space)
             {
                 set.add(-(value + 1));
             } else
@@ -665,7 +666,7 @@ public class LocationIndexTree implements LocationIndex
 
         if (closestMatch.isValid())
         {
-            // denormalize distance            
+            // denormalize distance
             closestMatch.setQueryDistance(distCalc.calcDenormalizedDist(closestMatch.getQueryDistance()));
             closestMatch.calcSnappedPoint(distCalc);
         }

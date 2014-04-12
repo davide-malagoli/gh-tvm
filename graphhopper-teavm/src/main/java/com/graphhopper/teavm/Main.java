@@ -20,7 +20,7 @@ public class Main {
         InMemoryDirectory directory = new InMemoryDirectory();
         readAll(directory);
         EncodingManager encodingManager = new EncodingManager(new BikeFlagEncoder());
-        GraphHopperStorage graph = new GraphHopperStorage(directory, encodingManager, false);
+        GraphHopperStorage graph = new GraphHopperStorage(directory, encodingManager, true);
         graph.loadExisting();
         FlagEncoder encoder = encodingManager.getSingle();
 
@@ -28,7 +28,7 @@ public class Main {
         DijkstraBidirection algo = new DijkstraBidirection(graph, encoder, weighting);
 
         LocationIndexTree locationIndex = new LocationIndexTree(graph, directory);
-        locationIndex.prepareIndex();
+        locationIndex.loadExisting();
         int fromNode = locationIndex.findID(55.762523, 37.408784);
         int toNode = locationIndex.findID(55.784806, 37.708047);
 
@@ -57,7 +57,8 @@ public class Main {
             }
             byte[] header = Base64.decode(entry.getHeader());
             for (int j = 0; j < 80; j += 4) {
-                int val = (header[j]) | (header[j + 1] << 8) | (header[j + 2] << 16) | (header[j + 3] << 24);
+                int val = (header[j] & 0xFF) | ((header[j + 1] & 0xFF) << 8) | ((header[j + 2] & 0xFF) << 16) |
+                        ((header[j + 3] & 0xFF) << 24);
                 file.setHeader(j, val);
             }
         }
