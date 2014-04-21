@@ -17,11 +17,15 @@ import com.graphhopper.util.PointList;
  */
 public class Main {
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         InMemoryDirectory directory = new InMemoryDirectory();
         readAll(directory);
-        EncodingManager encodingManager = new EncodingManager(new BikeFlagEncoder());
+        EncodingManager encodingManager = new EncodingManager(new CarFlagEncoder());
         GraphHopperStorage graph = new GraphHopperStorage(directory, encodingManager, true);
         graph.loadExisting();
+        System.out.println("Data loaded in " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
         FlagEncoder encoder = encodingManager.getSingle();
 
         Weighting weighting = new FastestWeighting(encoder);
@@ -31,6 +35,8 @@ public class Main {
         locationIndex.loadExisting();
         int fromNode = locationIndex.findID(55.762523, 37.408784);
         int toNode = locationIndex.findID(55.784806, 37.708047);
+        System.out.println("Source node: " + fromNode);
+        System.out.println("Target node: " + toNode);
 
         Path path = algo.calcPath(fromNode, toNode);
         PointList points = path.calcPoints();
@@ -38,6 +44,7 @@ public class Main {
             System.out.println(points.getLat(i) + "; " + points.getLon(i));
         }
         System.out.println("Distance: " + path.getDistance());
+        System.out.println("Route computed in " + (System.currentTimeMillis() - start) + "ms");
     }
 
     private static void readAll(InMemoryDirectory directory) {
@@ -64,3 +71,4 @@ public class Main {
         }
     }
 }
+

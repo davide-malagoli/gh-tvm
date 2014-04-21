@@ -297,7 +297,7 @@ public class LocationIndexTree implements LocationIndex
 
         // compact & store to dataAccess
         // XXX: it seems that there is issue somewhere, so I temporarily commented this
-        //dataAccess.create(64 * 1024);
+        dataAccess.create(64 * 1024);
         int lastPointer = inMem.store(inMem.root, START_POINTER);
         flush();
         float entriesPerLeaf = (float) inMem.size / inMem.leafs;

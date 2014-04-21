@@ -61,7 +61,7 @@ public class Base64 {
 
     public static byte[] decode(String message) {
         byte[] data = new byte[calculateLength(message)];
-        int sz = ((data.length + 1) / 4) * 4;
+        int sz = (data.length / 3) * 4;
         int buffer = 0;
         int j = 0;
         for (int i = 0; i < sz; i += 4) {
