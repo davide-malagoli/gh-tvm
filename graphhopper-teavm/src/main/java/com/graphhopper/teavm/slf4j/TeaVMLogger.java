@@ -126,7 +126,7 @@ public class TeaVMLogger implements Logger {
 
     private void log(String level, String format, Object... arguments) {
         StringBuffer sb = new StringBuffer();
-        sb.append('[').append(level).append(']');
+        sb.append('[').append(level).append("] ").append(name).append(": ");
         int index = 0;
         int argIndex = 0;
         while (index < format.length()) {
@@ -135,8 +135,9 @@ public class TeaVMLogger implements Logger {
                 break;
             }
             sb.append(format.subSequence(index, next));
-            sb.append(argIndex < arguments.length ? String.valueOf(arguments[0]) : "{}");
-            next = index + 2;
+            sb.append(argIndex < arguments.length ? String.valueOf(arguments[argIndex]) : "{}");
+            index = next + 2;
+            ++argIndex;
         }
         sb.append(format.substring(index));
         System.err.println(sb);
