@@ -28,6 +28,7 @@ public class GraphhopperJsonGenerator {
         gh.setInMemory(true);
         gh.setEncodingManager(new EncodingManager(new CarFlagEncoder()));
         gh.set3D(true);
+        gh.disableCHShortcuts();
         gh.importOrLoad();
         LocationIndex locTree = gh.getLocationIndex();
         int fromNode = locTree.findID(55.762523, 37.408784);
