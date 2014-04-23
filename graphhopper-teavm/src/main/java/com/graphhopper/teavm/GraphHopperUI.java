@@ -7,6 +7,8 @@ import org.teavm.jso.JS;
 import org.teavm.jso.JSArray;
 import com.graphhopper.routing.Path;
 import com.graphhopper.teavm.leaflet.*;
+import com.graphhopper.util.Instruction;
+import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 
@@ -76,10 +78,13 @@ public class GraphHopperUI {
             int firstNode = graphHopper.findNode(first.getLat(), first.getLng());
             int secondNode = graphHopper.findNode(second.getLat(), second.getLng());
             Path path = graphHopper.route(firstNode, secondNode);
-            PointList points = path.calcPoints();
+            InstructionList instructions = path.calcInstructions();
             JSArray<LatLng> array = window.newArray();
-            for (int i = 0; i < points.size(); ++i) {
-                array.push(Leaflet.latLng(points.getLat(i), points.getLon(i)));
+            for (Instruction insn : instructions) {
+                PointList points = insn.getPoints();
+                for (int i = 0; i < points.size(); ++i) {
+                    array.push(Leaflet.latLng(points.getLat(i), points.getLon(i)));
+                }
             }
             pathDisplay = Leaflet.polyline(array).addTo(map);
         }
