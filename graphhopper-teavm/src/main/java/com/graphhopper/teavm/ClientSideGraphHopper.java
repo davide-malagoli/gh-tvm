@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.teavm.jso.JS;
 import org.teavm.jso.JSArray;
-import com.graphhopper.routing.DijkstraBidirection;
+import com.graphhopper.routing.AStarBidirection;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.LevelGraphStorage;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.util.shapes.BBox;
 
@@ -24,6 +26,7 @@ public class ClientSideGraphHopper {
     private LocationIndexTree locationIndex;
     private FlagEncoder encoder;
     private Weighting weighting;
+    private PrepareContractionHierarchies prepare;
 
     public void load(JSArray<DataEntry> data) {
         if (logger.isInfoEnabled()) {
@@ -40,7 +43,7 @@ public class ClientSideGraphHopper {
         }
         start = System.currentTimeMillis();
         encodingManager = new EncodingManager(new CarFlagEncoder());
-        graph = new GraphHopperStorage(directory, encodingManager, true);
+        graph = new LevelGraphStorage(directory, encodingManager, true);
         encoder = encodingManager.getSingle();
         graph.loadExisting();
 
@@ -48,6 +51,8 @@ public class ClientSideGraphHopper {
         locationIndex.loadExisting();
 
         weighting = new FastestWeighting(encodingManager.getSingle());
+        prepare = new PrepareContractionHierarchies(encoder, weighting);
+        prepare.setGraph(graph);
 
         if (logger.isInfoEnabled()) {
             logger.info("GraphHopper initialized in {}ms", System.currentTimeMillis() - start);
@@ -90,7 +95,7 @@ public class ClientSideGraphHopper {
 
     public Path route(int from, int to) {
         long start = System.currentTimeMillis();
-        DijkstraBidirection algo = new DijkstraBidirection(graph, encoder, weighting);
+        AStarBidirection algo = prepare.createAStar();
         Path path = algo.calcPath(from, to);
         if (logger.isInfoEnabled()) {
             logger.info("Path from {} to {} found in {} ms. Distance is {}", from, to,

@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
     // the most important nodes comes last
     private GHTreeMapComposed sortedNodes;
     private int oldPriorities[];
-    private final DataAccess originalEdges;
+    private DataAccess originalEdges;
     private final Map<Shortcut, Shortcut> shortcuts = new HashMap<Shortcut, Shortcut>();
     private IgnoreNodeFilter ignoreNodeFilter;
     private DijkstraOneToMany algo;
@@ -95,8 +95,6 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
                     + "It seems that you have imported more than one.");
 
         prepareWeighting = new PreparationWeighting(weighting);
-        originalEdges = new GHDirectory("", DAType.RAM_INT).find("originalEdges");
-        originalEdges.create(1000);
     }
 
     @Override
@@ -215,7 +213,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
         return c > 0;
     }
 
-    // TODO we can avoid node level if we store this into a temporary array and 
+    // TODO we can avoid node level if we store this into a temporary array and
     // disconnect all edges which goes from higher to lower level
     // uninitialized nodes have a level of 0
     // TODO we could avoid the second storage for skippedEdge as we could store that info into linkB or A if it is disconnected
@@ -271,7 +269,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
         LevelGraphStorage lg = ((LevelGraphStorage) g);
         while (!sortedNodes.isEmpty())
         {
-            // periodically update priorities of ALL nodes            
+            // periodically update priorities of ALL nodes
             if (periodicUpdate && counter > 0 && counter % periodicUpdatesCount == 0)
             {
                 periodSW.start();
@@ -328,7 +326,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
                 lazySW.stop();
             }
 
-            // contract!            
+            // contract!
             newShortcuts += addShortcuts(polledNode);
             g.setLevel(polledNode, level);
             level++;
@@ -455,12 +453,12 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
                 EdgeIterator outgoingEdges,
                 int skippedEdge1, int incomingEdgeOrigCount )
         {
-            // FOUND shortcut 
-            // but be sure that it is the only shortcut in the collection 
+            // FOUND shortcut
+            // but be sure that it is the only shortcut in the collection
             // and also in the graph for u->w. If existing AND identical weight => update setProperties.
             // Hint: shortcuts are always one-way due to distinct level of every node but we don't
             // know yet the levels so we need to determine the correct direction or if both directions
-            // minor improvement: if (shortcuts.containsKey(sc) 
+            // minor improvement: if (shortcuts.containsKey(sc)
             // then two shortcuts with the same nodes (u<->n.adjNode) exists => check current shortcut against both
             Shortcut sc = new Shortcut(u_fromNode, w_toNode, existingDirectWeight, existingDistSum);
             if (shortcuts.containsKey(sc))
@@ -513,7 +511,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
 //            originalEdgesCount += sc.originalEdges;
 //        }
 
-        // # lowest influence on preparation speed or shortcut creation count 
+        // # lowest influence on preparation speed or shortcut creation count
         // (but according to paper should speed up queries)
         //
         // number of already contracted neighbors of v
@@ -530,7 +528,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
         // from shortcuts we can compute the edgeDifference
         // # low influence: with it the shortcut creation is slightly faster
         //
-        // |shortcuts(v)| − |{(u, v) | v uncontracted}| − |{(v, w) | v uncontracted}|        
+        // |shortcuts(v)| − |{(u, v) | v uncontracted}| − |{(v, w) | v uncontracted}|
         // meanDegree is used instead of outDegree+inDegree as if one adjNode is in both directions
         // only one bucket memory is used. Additionally one shortcut could also stand for two directions.
         int edgeDifference = calcScHandler.shortcuts - degree;
@@ -594,7 +592,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
 
                 // compare end node as the limit could force dijkstra to finish earlier
                 if (endNode == w_toNode && algo.getWeight(endNode) <= existingDirectWeight)
-                    // FOUND witness path, so do not add shortcut                
+                    // FOUND witness path, so do not add shortcut
                     continue;
 
                 sch.foundShortcut(u_fromNode, w_toNode,
@@ -688,7 +686,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
         vehicleAllTmpExplorer = g.createEdgeExplorer(new DefaultEdgeFilter(prepareEncoder, true, true));
         calcPrioAllExplorer = g.createEdgeExplorer(new DefaultEdgeFilter(prepareEncoder, true, true));
         ignoreNodeFilter = new IgnoreNodeFilter(g);
-        // Use an alternative to PriorityQueue as it has some advantages: 
+        // Use an alternative to PriorityQueue as it has some advantages:
         //   1. Gets automatically smaller if less entries are stored => less total RAM used (as Graph is increasing until the end)
         //   2. is slightly faster
         //   but we need additional priorities array to keep old value which is necessary for update method
@@ -730,6 +728,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
 
     private void setOrigEdgeCount( int index, int value )
     {
+        ensureOrigEdges();
         long tmp = (long) index * 4;
         originalEdges.incCapacity(tmp + 4);
         originalEdges.setInt(tmp, value);
@@ -737,10 +736,18 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
 
     private int getOrigEdgeCount( int index )
     {
+        ensureOrigEdges();
         // TODO possible memory usage improvement: avoid storing the value 1 for normal edges (does not change)!
         long tmp = (long) index * 4;
         originalEdges.incCapacity(tmp + 4);
         return originalEdges.getInt(tmp);
+    }
+
+    private void ensureOrigEdges() {
+        if (originalEdges == null) {
+            originalEdges = new GHDirectory("", DAType.RAM_INT).find("originalEdges");
+            originalEdges.create(1000);
+        }
     }
 
     @Override
@@ -764,7 +771,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation<Prepa
                 if (finishedFrom && finishedTo)
                     return true;
 
-                // changed also the final finish condition for CH                
+                // changed also the final finish condition for CH
                 return currFrom.weight >= bestPath.getWeight() && currTo.weight >= bestPath.getWeight();
             }
 
