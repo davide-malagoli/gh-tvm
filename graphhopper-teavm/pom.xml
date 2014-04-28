@@ -66,7 +66,7 @@
         </dependencies>
         <executions>
           <execution>
-            <id>generate-javascript</id>
+            <id>generate-ui-javascript</id>
             <goals>
               <goal>build-javascript</goal>
             </goals>
@@ -74,7 +74,42 @@
             <configuration>
               <minifying>false</minifying>
               <mainClass>com.graphhopper.teavm.Main</mainClass>
-              <mainPageIncluded>true</mainPageIncluded>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-lib-javascript</id>
+            <goals>
+              <goal>build-javascript</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <minifying>true</minifying>
+              <targetDirectory>${project.build.directory}</targetDirectory>
+              <runtimeCopy>MERGE</runtimeCopy>
+              <targetFileName>graphhopper-client-0.3.min.js</targetFileName>
+              <classAliases>
+                <item>
+                  <alias>ClientSideGraphHopper</alias>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                </item>
+              </classAliases>
+              <methodAliases>
+                <item>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <methodName>createInstance</methodName>
+                  <descriptor>()Lcom.graphhopper.teavm.ClientSideGraphHopper;</descriptor>
+                </item>
+                <item>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <methodName>route</methodName>
+                  <descriptor>(II)Lcom.graphhopper.routing.Path;</descriptor>
+                </item>
+                <item>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <methodName>findNode</methodName>
+                  <descriptor>(DD)I</descriptor>
+                </item>
+              </methodAliases>
             </configuration>
           </execution>
           <execution>
