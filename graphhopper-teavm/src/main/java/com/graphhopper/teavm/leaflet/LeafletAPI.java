@@ -28,4 +28,6 @@ public interface LeafletAPI extends JSObject {
     Marker marker(LatLng latLng);
 
     TileLayer tileLayer(String urlTemplate);
+
+    TileLayer tileLayer(String urlTemplate, TileLayerOptions options);
 }

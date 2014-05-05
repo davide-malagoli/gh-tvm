@@ -83,9 +83,9 @@
             </goals>
             <phase>process-classes</phase>
             <configuration>
-              <minifying>true</minifying>
+              <minifying>false</minifying>
               <targetDirectory>${project.build.directory}</targetDirectory>
-              <runtimeCopy>MERGE</runtimeCopy>
+              <runtime>MERGED</runtime>
               <targetFileName>graphhopper-client-0.3.min.js</targetFileName>
               <classAliases>
                 <item>
@@ -103,11 +103,25 @@
                   <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
                   <methodName>route</methodName>
                   <descriptor>(II)Lcom.graphhopper.routing.Path;</descriptor>
+                  <types>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                  </types>
                 </item>
                 <item>
                   <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
                   <methodName>findNode</methodName>
                   <descriptor>(DD)I</descriptor>
+                  <types>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                  </types>
+                </item>
+                <item>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <methodName>load</methodName>
+                  <descriptor>(Lorg.teavm.jso.JSArray;)V</descriptor>
+                  <types>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                  </types>
                 </item>
               </methodAliases>
             </configuration>

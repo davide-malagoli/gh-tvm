@@ -59,8 +59,16 @@ public final class Leaflet {
         return api().tileLayer(urlTemplate);
     }
 
+    public static TileLayer tileLayer(String urlTemplate, TileLayerOptions options) {
+        return api().tileLayer(urlTemplate, options);
+    }
+
     public static LeafletMapOptions createMapOptions() {
         return root.newMapOptions();
+    }
+
+    public static TileLayerOptions createTileLayerOptions() {
+        return root.newTileLayerOptions();
     }
 
     public static <T extends JSObject> JSArray<T> createArray() {

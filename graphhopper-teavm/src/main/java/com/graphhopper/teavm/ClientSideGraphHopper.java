@@ -32,12 +32,12 @@ public class ClientSideGraphHopper {
     @PreserveOriginalName
     public void load(JSArray<DataEntry> data) {
         if (logger.isInfoEnabled()) {
-            logger.info("Loading GraphGopper directory");
+            logger.info("Loading GraphHopper directory");
         }
         long start = System.currentTimeMillis();
         loadStorage(data);
         if (logger.isInfoEnabled()) {
-            logger.info("GraphHopper directory loaded in {}ms", System.currentTimeMillis() - start);
+            logger.info("GraphHopper directory loaded in {} ms", System.currentTimeMillis() - start);
         }
 
         if (logger.isInfoEnabled()) {
@@ -57,10 +57,11 @@ public class ClientSideGraphHopper {
         prepare.setGraph(graph);
 
         if (logger.isInfoEnabled()) {
-            logger.info("GraphHopper initialized in {}ms", System.currentTimeMillis() - start);
+            logger.info("GraphHopper initialized in {} ms", System.currentTimeMillis() - start);
         }
     }
 
+    @PreserveOriginalName
     public BBox getBounds() {
         return graph.getBounds();
     }

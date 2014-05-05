@@ -39,7 +39,10 @@ public class GraphHopperUI {
         this.element = element;
         LeafletMapOptions options = Leaflet.createMapOptions();
         map = Leaflet.map(element, options);
-        Leaflet.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+        TileLayerOptions tileOptions = Leaflet.createTileLayerOptions();
+        tileOptions.setAttribution("&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> " +
+                "contributors");
+        Leaflet.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", tileOptions).addTo(map);
         map.on("click", new LeafletMapEventListener() {
             @Override public void occur(LeafletMapEvent event) {
                 click(event.getLatlng());
@@ -65,7 +68,9 @@ public class GraphHopperUI {
         if (secondMarker != null) {
             map.removeLayer(firstMarker);
             map.removeLayer(secondMarker);
-            map.removeLayer(pathDisplay);
+            if (pathDisplay != null) {
+                map.removeLayer(pathDisplay);
+            }
             firstMarker = Leaflet.marker(latlng).addTo(map);
             secondMarker = null;
             pathDisplay = null;
@@ -77,6 +82,11 @@ public class GraphHopperUI {
             LatLng second = secondMarker.getLatLng();
             int firstNode = graphHopper.findNode(first.getLat(), first.getLng());
             int secondNode = graphHopper.findNode(second.getLat(), second.getLng());
+            if (firstNode < 0 || secondNode < 0) {
+                pathDisplay = null;
+                window.alert("One of the provided points is outside of the known region");
+                return;
+            }
             Path path = graphHopper.route(firstNode, secondNode);
             InstructionList instructions = path.calcInstructions();
             JSArray<LatLng> array = window.newArray();

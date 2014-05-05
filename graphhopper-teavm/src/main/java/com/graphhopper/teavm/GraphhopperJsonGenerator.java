@@ -5,16 +5,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.DijkstraBidirection;
-import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FastestWeighting;
-import com.graphhopper.routing.util.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.GHDirectory;
-import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.PointList;
 
 /**
  *
@@ -29,21 +23,6 @@ public class GraphhopperJsonGenerator {
         gh.setEncodingManager(new EncodingManager(new CarFlagEncoder()));
         gh.set3D(true);
         gh.importOrLoad();
-        LocationIndex locTree = gh.getLocationIndex();
-        int fromNode = locTree.findID(55.762523, 37.408784);
-        int toNode = locTree.findID(55.784806, 37.708047);
-        System.out.println("Source node: " + fromNode);
-        System.out.println("Target node: " + toNode);
-
-        Weighting weighting = new FastestWeighting(gh.getEncodingManager().getSingle());
-        DijkstraBidirection algo = new DijkstraBidirection(gh.getGraph(), gh.getEncodingManager().getSingle(),
-                weighting);
-        Path path = algo.calcPath(fromNode, toNode);
-        PointList points = path.calcPoints();
-        for (int i = 0; i < points.size(); ++i) {
-            System.out.println(points.getLat(i) + "; " + points.getLon(i));
-        }
-        System.out.println("Distance: " + path.getDistance());
 
         GHDirectory dir = (GHDirectory)gh.getGraph().getDirectory();
         byte[] buffer = new byte[1024];

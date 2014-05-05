@@ -19,9 +19,13 @@ public class Main {
         mapElement.setAttribute("style", "width: 800px; height: 480px");
         body.appendChild(mapElement);
 
-        GraphHopperUI ui = new GraphHopperUI(mapElement);
         @SuppressWarnings("unchecked")
         JSArray<DataEntry> data = (JSArray<DataEntry>)JS.get(JS.getGlobal(), JS.wrap("graphhopperData"));
+        if (JS.isUndefined(data)) {
+            window.alert("Can't initialize GraphHopper. gh-directory.js was not found.");
+            return;
+        }
+        GraphHopperUI ui = new GraphHopperUI(mapElement);
         ui.load(data);
     }
 }

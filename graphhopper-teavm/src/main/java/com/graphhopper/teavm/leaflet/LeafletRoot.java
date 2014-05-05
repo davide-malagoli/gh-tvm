@@ -10,4 +10,7 @@ import org.teavm.jso.JSGlobal;
 interface LeafletRoot extends JSGlobal {
     @JSConstructor("Object")
     LeafletMapOptions newMapOptions();
+
+    @JSConstructor("Object")
+    TileLayerOptions newTileLayerOptions();
 }
