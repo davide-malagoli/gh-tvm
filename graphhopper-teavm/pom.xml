@@ -109,6 +109,14 @@
                 </item>
                 <item>
                   <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
+                  <methodName>getBounds</methodName>
+                  <descriptor>()Lcom.graphhopper.teavm.JSMap;</descriptor>
+                  <types>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopperBridge</item>
+                  </types>
+                </item>
+                <item>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                   <methodName>findNode</methodName>
                   <descriptor>(DD)I</descriptor>
                   <types>
