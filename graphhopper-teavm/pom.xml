@@ -83,44 +83,44 @@
             </goals>
             <phase>process-classes</phase>
             <configuration>
-              <minifying>false</minifying>
+              <minifying>true</minifying>
               <targetDirectory>${project.build.directory}</targetDirectory>
               <runtime>MERGED</runtime>
               <targetFileName>graphhopper-client-0.3.min.js</targetFileName>
               <classAliases>
                 <item>
                   <alias>ClientSideGraphHopper</alias>
-                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                 </item>
               </classAliases>
               <methodAliases>
                 <item>
-                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                   <methodName>createInstance</methodName>
-                  <descriptor>()Lcom.graphhopper.teavm.ClientSideGraphHopper;</descriptor>
+                  <descriptor>()Lcom.graphhopper.teavm.ClientSideGraphHopperAPI;</descriptor>
                 </item>
                 <item>
-                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                   <methodName>route</methodName>
-                  <descriptor>(II)Lcom.graphhopper.routing.Path;</descriptor>
+                  <descriptor>(II)Lcom.graphhopper.teavm.JSMap;</descriptor>
                   <types>
-                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopperBridge</item>
                   </types>
                 </item>
                 <item>
-                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                   <methodName>findNode</methodName>
                   <descriptor>(DD)I</descriptor>
                   <types>
-                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopperBridge</item>
                   </types>
                 </item>
                 <item>
-                  <className>com.graphhopper.teavm.ClientSideGraphHopper</className>
+                  <className>com.graphhopper.teavm.ClientSideGraphHopperBridge</className>
                   <methodName>load</methodName>
                   <descriptor>(Lorg.teavm.jso.JSArray;)V</descriptor>
                   <types>
-                    <item>com.graphhopper.teavm.ClientSideGraphHopper</item>
+                    <item>com.graphhopper.teavm.ClientSideGraphHopperBridge</item>
                   </types>
                 </item>
               </methodAliases>

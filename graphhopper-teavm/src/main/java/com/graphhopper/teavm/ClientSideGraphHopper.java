@@ -2,7 +2,6 @@ package com.graphhopper.teavm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.teavm.javascript.ni.PreserveOriginalName;
 import org.teavm.jso.JS;
 import org.teavm.jso.JSArray;
 import com.graphhopper.routing.AStarBidirection;
@@ -29,7 +28,7 @@ public class ClientSideGraphHopper {
     private Weighting weighting;
     private PrepareContractionHierarchies prepare;
 
-    @PreserveOriginalName
+
     public void load(JSArray<DataEntry> data) {
         if (logger.isInfoEnabled()) {
             logger.info("Loading GraphHopper directory");
@@ -61,7 +60,6 @@ public class ClientSideGraphHopper {
         }
     }
 
-    @PreserveOriginalName
     public BBox getBounds() {
         return graph.getBounds();
     }
@@ -87,7 +85,6 @@ public class ClientSideGraphHopper {
         }
     }
 
-    @PreserveOriginalName
     public int findNode(double lat, double lng) {
         long start = System.currentTimeMillis();
         int result = locationIndex.findID(lat, lng);
@@ -97,7 +94,6 @@ public class ClientSideGraphHopper {
         return result;
     }
 
-    @PreserveOriginalName
     public Path route(int from, int to) {
         long start = System.currentTimeMillis();
         AStarBidirection algo = prepare.createAStar();
@@ -107,10 +103,5 @@ public class ClientSideGraphHopper {
                     System.currentTimeMillis() - start, path.getDistance());
         }
         return path;
-    }
-
-    @PreserveOriginalName
-    public static ClientSideGraphHopper createInstance() {
-        return new ClientSideGraphHopper();
     }
 }
