@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+  <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+    <launchConfigurationType
+        sourceLocatorId="org.teavm.eclipse.debugger.sourceLookup"
+        name="TeaVM remote"
+        sourcePathComputerId="org.teavm.eclipse.debugger.sourcePath"
+        delegate="org.teavm.eclipse.debugger.TeaVMLaunchConfigurationDelegate"
+        modes="debug"
+        id="org.teavm.eclipse.debugger.launchConfig">
+    </launchConfigurationType>
+  </extension>
+  <extension point="org.eclipse.debug.core.sourceLocators">
+    <sourceLocator
+        name="TeaVM Source Lookup Director"
+        class="org.teavm.eclipse.debugger.TeaVMSourceLookupDirector"
+        id="org.teavm.eclipse.debugger.sourceLookup">
+    </sourceLocator>
+  </extension>
+  <extension point="org.eclipse.debug.core.sourcePathComputers">
+    <sourcePathComputer
+        class="org.teavm.eclipse.debugger.TeaVMSourcePathComputerDelegate"
+        id="org.teavm.eclipse.debugger.sourcePath">
+    </sourcePathComputer>
+  </extension>
+  <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+    <launchConfigurationTabGroup
+        type="org.teavm.eclipse.debugger.launchConfig"
+        description="Debug TeaVM program"
+        class="org.teavm.eclipse.debugger.ui.TeaVMTabGroup"
+        id="org.teavm.eclipse.debugger.ui.tabs">
+    </launchConfigurationTabGroup>
+  </extension>
+  <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+    <launchConfigurationTypeImage
+        id="org.teavm.eclipse.debugger.ui.launchConfigIcon"
+        configTypeID="org.teavm.eclipse.debugger.launchConfig"
+        icon="teavm-16.png">
+    </launchConfigurationTypeImage>
+  </extension>
+  <extension point="org.eclipse.debug.ui.debugModelPresentations">
+    <debugModelPresentation
+        class="org.teavm.eclipse.debugger.ui.TeaVMDebugModelPresentation"
+        id="org.teavm.eclipse.debugger.frame">
+    </debugModelPresentation>
+  </extension>
+</plugin>
