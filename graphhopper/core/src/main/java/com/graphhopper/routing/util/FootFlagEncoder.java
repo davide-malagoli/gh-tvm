@@ -43,7 +43,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder
     /**
      * Should be only instantiated via EncodingManager
      */
-    protected FootFlagEncoder()
+    public FootFlagEncoder()
     {
         this(4, 1);
     }

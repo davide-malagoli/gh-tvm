@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.GHDirectory;
@@ -20,7 +20,7 @@ public class GraphhopperJsonGenerator {
         gh.setGraphHopperLocation("gh-folder");
         gh.setOSMFile(args[0]);
         gh.setInMemory(true);
-        gh.setEncodingManager(new EncodingManager(new CarFlagEncoder()));
+        gh.setEncodingManager(new EncodingManager(new FootFlagEncoder()));
         gh.set3D(true);
         gh.importOrLoad();
 

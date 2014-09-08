@@ -43,7 +43,7 @@ public class ClientSideGraphHopper {
             logger.info("Initializing GraphHopper");
         }
         start = System.currentTimeMillis();
-        encodingManager = new EncodingManager(new CarFlagEncoder());
+        encodingManager = new EncodingManager(new FootFlagEncoder());
         graph = new LevelGraphStorage(directory, encodingManager, true);
         encoder = encodingManager.getSingle();
         graph.loadExisting();
