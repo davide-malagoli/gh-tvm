@@ -1,0 +1,2 @@
+cgt_GraphHopperUI837_click1175(window.graphopperUI.this$0834,L.latLng(43.84304700103369, 10.505542159080505))
+cgt_GraphHopperUI837_click1175(window.graphopperUI.this$0834,L.latLng(43.84270652516617, 10.507071018218994))
